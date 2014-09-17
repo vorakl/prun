@@ -5,7 +5,7 @@
 # It executes in parallel mode commands on remote hosts
 # with watchdog controlling and making reports.
 #
-# You can set common parameters in configuration file.
+# You can write common parameters into configuration file.
 # For example in /etc/prun.conf or /home/user/.prun.conf
 #
 # Environment parameters which were set in advance have a precedence

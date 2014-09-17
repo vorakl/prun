@@ -2,19 +2,22 @@
 
 ## Version
 
-v.2.1 2012-2014
+v.2.1, 2012-2014
 
 ## Description
 
 It executes in parallel mode commands on remote hosts
 with watchdog controlling and making reports.
 
-You can set common parameters in configuration file.
+You can write common parameters into configuration file.
 For example in /etc/prun.conf or /home/user/.prun.conf
 
 Environment parameters which are set in advance have a precedence.
 
 The directory with reports can be found at the and of the output.
+
+## Usage
+    prun "dest1 ...|@file|- ..." "command args"
 
 ## Examples
 
@@ -33,7 +36,13 @@ The directory with reports can be found at the and of the output.
 
 ### Configuration file
 
+    DEBUG=0
     CONCURENT_PROC=50
     WATCHDOG_TIMER=60
     SHOW_REPORT=1
     SHOW_REPORT_TEXT=1
+    SHOW_REPORT_FULLTEXT=0
+    DEL_REPORT_DIR=1
+    SSH_USER
+    SSH_KEY
+    SSH_PARAM="-na"
