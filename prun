@@ -1,0 +1,250 @@
+#!/bin/sh
+#
+# prun v.2.1 (c) vorakl, 2012-2014
+#
+# It executes in parallel mode commands on remote hosts
+# with watchdog controlling and making reports.
+#
+# You can set common parameters in configuration file.
+# For example in /etc/prun.conf or /home/user/.prun.conf
+#
+# Environment parameters which were set in advance have a precedence
+
+PATH="/bin:/usr/bin:/usr/sbin:/sbin"; export PATH
+_PROG_NAME=$(basename $0); _PROG_NAME=${_PROG_NAME%%.*}
+
+# saving environment parameters
+tDEBUG=${DEBUG:-"<def>"}
+tCONCURENT_PROC=${CONCURENT_PROC:-"<def>"}
+tWATCHDOG_TIMER=${WATCHDOG_TIMER:-"<def>"}
+tSHOW_REPORT=${SHOW_REPORT:-"<def>"}
+tSHOW_REPORT_TEXT=${SHOW_REPORT_TEXT:-"<def>"}
+tSHOW_REPORT_FULLTEXT=${SHOW_REPORT_FULLTEXT:-"<def>"}
+tDEL_REPORT_DIR=${DEL_REPORT_DIR:-"<def>"}
+tSSH_USER=${SSH_USER:-"<def>"}
+tSSH_KEY=${SSH_KEY:-"<def>"}
+tSSH_PARAM=${SSH_PARAM:-"<def>"}
+
+# configuration files
+[ -r /etc/${_PROG_NAME}.conf ] && . /etc/${_PROG_NAME}.conf
+[ -r ~/.${_PROG_NAME}.conf ] && . ~/.${_PROG_NAME}.conf
+
+# public variables
+# if parameters have been set, restore them from temporary variable
+# othervise, set default values
+[ "${tDEBUG}" != "<def>" ] && DEBUG=${tDEBUG} || : ${DEBUG:="0"}
+[ "${tCONCURENT_PROC}" != "<def>" ] && CONCURENT_PROC=${tCONCURENT_PROC} || : ${CONCURENT_PROC:="30"}
+[ "${tWATCHDOG_TIMER}" != "<def>" ] && WATCHDOG_TIMER=${tWATCHDOG_TIMER} || : ${WATCHDOG_TIMER:="50"}
+[ "${tSHOW_REPORT}" != "<def>" ] && SHOW_REPORT=${tSHOW_REPORT} || : ${SHOW_REPORT:="1"}
+[ "${tSHOW_REPORT_TEXT}" != "<def>" ] && SHOW_REPORT_TEXT=${tSHOW_REPORT_TEXT} || : ${SHOW_REPORT_TEXT:="1"}
+[ "${tSHOW_REPORT_FULLTEXT}" != "<def>" ] && SHOW_REPORT_FULLTEXT=${tSHOW_REPORT_FULLTEXT} || : ${SHOW_REPORT_FULLTEXT:="0"}
+[ "${tDEL_REPORT_DIR}" != "<def>" ] && DEL_REPORT_DIR=${tDEL_REPORT_DIR} || : ${DEL_REPORT_DIR:="1"}
+[ "${tSSH_USER}" != "<def>" ] && SSH_USER=${tSSH_USER} || : ${SSH_USER:="$(whoami)"}
+[ "${tSSH_KEY}" != "<def>" ] && SSH_KEY=${tSSH_KEY} || : ${SSH_KEY:="/home/${SSH_USER}/.ssh/id_rsa"}
+[ "${tSSH_PARAM}" != "<def>" ] && SSH_PARAM=${tSSH_PARAM} || : ${SSH_PARAM:="-na"}
+
+# private variables
+PATH="/bin:/usr/bin:/usr/sbin:/sbin"; export PATH
+_DATE=$(date +%FT%H-%M-%S%z)
+_PID_FILE="/tmp/${_PROG_NAME}.pid"
+_TMP_DIR="/tmp/${_PROG_NAME}-${_DATE}"
+_FORK_PIDS=""
+_MY_PID="$$"
+_WATCHDOG_PID=""
+_TARGET_PARAM=""
+_TARGET=""
+_COMMAND=""
+
+usage()
+{
+        echo "Usage: ${_PROG_NAME} \"dest1 ...|@file|- ...\" \"command args\""
+        echo "Environment:"
+        echo "         DEBUG (${DEBUG})"
+        echo "         CONCURENT_PROC (${CONCURENT_PROC})"
+        echo "         WATCHDOG_TIMER (${WATCHDOG_TIMER})"
+        echo "         SHOW_REPORT (${SHOW_REPORT})"
+        echo "         SHOW_REPORT_TEXT (${SHOW_REPORT_TEXT})"
+        echo "         SHOW_REPORT_FULLTEXT (${SHOW_REPORT_FULLTEXT})"
+        echo "         DEL_REPORT_DIR (${DEL_REPORT_DIR})"
+        echo "         SSH_USER (${SSH_USER})"
+        echo "         SSH_KEY (${SSH_KEY})"
+        echo "         SSH_PARAM (${SSH_PARAM})"
+	echo "Examples:"
+	echo "         ${_PROG_NAME} box113 uptime"
+	echo "         ${_PROG_NAME} \"a1 ds214 akz15\" \"ls -la\""
+	echo "         ${_PROG_NAME} \"@srv.list\" id"
+	echo "         ${_PROG_NAME} \"srv1 srv2 @srv.list\" \"ip addr sh\""
+	echo "         ${_PROG_NAME} \"srv56 -\" \"ip rou sh\" < srv.list"
+	echo "         cat srv.list | ${_PROG_NAME} - \"netstat -na | grep LISTEN\""
+	echo "         CONCURENT_PROC=4 ${_PROG_NAME} \"@srv.list\" \"sudo id\""
+	echo "         SSH_USER=root SSH_KEY=/home/user/.ssh/id_dsa SSH_PARAM=-nap12345 ./prun some.host who"
+}
+
+check_running()
+{
+	if pgrep -F ${_PID_FILE} > /dev/null 2>&1
+	then
+		debug "Error! Another copy of ${_PROG_NAME} is working at the moment."
+		exit 1
+	else
+		echo ${_MY_PID} > ${_PID_FILE}
+	fi
+}
+
+debug()
+{
+	[ ${DEBUG} -eq 1 ] && echo "DEBUG: $@" >&2
+}
+
+analyse_report()
+{
+        local _curdir
+
+	if [ ${DEL_REPORT_DIR} -eq 0 ]
+	then
+		echo ""
+		echo "Report dir: ${_TMP_DIR}/"
+	fi
+
+	if [ ${SHOW_REPORT} -eq 1 ]
+	then
+		echo ""
+		ls ${_TMP_DIR}/
+		echo ""
+		if [ ${SHOW_REPORT_FULLTEXT} -eq 1 ]
+		then
+			_curdir=$(pwd)
+			cd ${_TMP_DIR}/ && awk '{print FILENAME": "$0}' *
+			cd ${_curdir}
+		elif [ ${SHOW_REPORT_TEXT} -eq 1 ]
+		  then
+			_curdir=$(pwd)
+			cd ${_TMP_DIR}/ && awk 'FNR>0 && FNR<10 {print FILENAME": "$0}' *
+			cd ${_curdir}
+		fi	
+	fi
+
+	if [ ${DEL_REPORT_DIR} -eq 1 ]
+	then
+		rm -rf ${_TMP_DIR}
+                
+	fi
+
+        echo ""
+	echo "Finished at $(date +%FT%H-%M-%S%z)"
+}
+
+trimm_spaces()
+{
+	echo $* | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+}
+
+split_to_columns()
+{
+	cat | xargs -n $1
+}
+
+run()
+{
+        local _output
+
+        debug "run [$1] [${_COMMAND}]"
+
+	: > ${_TMP_DIR}/$1-err
+	_output=$(ssh ${SSH_PARAM} -i ${SSH_KEY} ${SSH_USER}@$1 ${_COMMAND} 2>&1) 
+	[ $? -eq 0 ] && rm -f ${_TMP_DIR}/$1-err
+        [ -n "${_output}" ] && echo "${_output}" > ${_TMP_DIR}/$1 || : > ${_TMP_DIR}/$1-empty
+}
+
+work()
+{
+        local i j k
+
+	debug "Work with: $@"
+
+	# fork tasks
+	for i in $@
+	do
+		run ${i} &
+		_FORK_PIDS="${_FORK_PIDS} $!"
+	done
+
+        # trimm spaces around string
+	_FORK_PIDS=$(trimm_spaces ${_FORK_PIDS})
+	debug "Forked PIDs: ${_FORK_PIDS}"
+
+	# run watchdog
+	sleep ${WATCHDOG_TIMER} && ( for j in ${_FORK_PIDS}; do ps -p ${j} > /dev/null && kill -9 ${j}; done; debug "Kill forks PIDs: ${_FORK_PIDS}" ) &
+	_WATCHDOG_PID=$!
+	debug "Install watchdog (pid=${_WATCHDOG_PID})"
+
+	# repeat while exist working tasks
+	while [ -n "${_FORK_PIDS}" ]
+	do
+		for k in ${_FORK_PIDS}
+		do
+			ps -p $k -o pid= > /dev/null || _FORK_PIDS=$(echo ${_FORK_PIDS} | sed 's/'$k'//;s/^[[:space:]]*//;s/[[:space:]]*$//')
+		done
+		sleep 1
+	done
+
+	# remove watchdog if it exists
+	if [ -n "${_WATCHDOG_PID}" ] 
+	then
+		ps -p ${_WATCHDOG_PID} > /dev/null && kill -9 ${_WATCHDOG_PID} > /dev/null && debug "Kill watchdog (pid=${_WATCHDOG_PID})"
+	fi	
+}
+
+main()
+{
+        local ltmp1 ltmp2
+
+	check_running
+	[ ! -d ${_TMP_DIR} ] && mkdir -p ${_TMP_DIR}
+        trap 'pkill -9 -P ${_MY_PID} > /dev/null; rm -f ${_PID_FILE};' 0 1 2 15
+
+	_TARGET_PARAM="$1"
+        [ -z "${_TARGET_PARAM}" ] && { usage; exit 1; }
+	shift
+	_COMMAND="$@"
+        [ -z "${_COMMAND}" ] && { usage; exit 1; }
+
+	for ltmp1 in ${_TARGET_PARAM}
+	do
+		case ${ltmp1} in
+			-)    while read ltmp2
+                              do
+                                 _TARGET="${_TARGET} ${ltmp2}"
+                              done
+			      ;;
+                        @*)   while read ltmp2
+                              do 
+                                 _TARGET="${_TARGET} ${ltmp2}"
+                              done < ${ltmp1#@*}
+                              ;;
+                        *)    _TARGET="${_TARGET} ${ltmp1}"
+                              ;;
+                esac
+        done
+	_TARGET=$(trimm_spaces ${_TARGET})
+
+	if [ -n "${_TARGET}" ] 
+	then
+		debug "Target: ${_TARGET}"
+		debug "Command: ${_COMMAND}"
+		echo "${_TARGET}"  | split_to_columns ${CONCURENT_PROC} | \
+		while read ltmp1
+		do
+			work "${ltmp1}"
+                done
+	else
+		debug "Destination not found"
+		exit 1
+	fi
+
+	analyse_report
+}
+
+main "$@"
+
+exit
