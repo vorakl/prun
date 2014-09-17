@@ -18,6 +18,8 @@ The directory with reports can be found at the and of the output.
 
 ## Examples
 
+1. Commands
+
     prun box113 uptime
     prun "a1 ds214 akz15" "ls -la"
     prun "@srv.list" id
@@ -27,4 +29,11 @@ The directory with reports can be found at the and of the output.
     cat srv.list | prun - "netstat -na | grep LISTEN"
 
     CONCURENT_PROC=4 prun "@srv.list" "sudo id"
-    SSH_USER=root SSH_KEY=/home/user/.ssh/id_dsa SSH_PARAM=-nap12345 ./prun some.host who
+    SSH_USER=root SSH_KEY=/home/user/.ssh/id_dsa SSH_PARAM=-nap12345 prun some.host who
+
+2. Configuration file
+
+    CONCURENT_PROC=50
+    WATCHDOG_TIMER=60
+    SHOW_REPORT=1
+    SHOW_REPORT_TEXT=1
