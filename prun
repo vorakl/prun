@@ -10,7 +10,6 @@
 #
 # Environment parameters which were set in advance have a precedence
 
-PATH="/bin:/usr/bin:/usr/sbin:/sbin"; export PATH
 _PROG_NAME=$(basename $0); _PROG_NAME=${_PROG_NAME%%.*}
 
 # saving environment parameters
