@@ -27,7 +27,7 @@ The directory with reports can be found at the and of the output.
     prun "a1 ds214 akz15" "ls -la"
     prun "@srv.list" id
     prun "srv1 srv2 @srv.list" "ip addr sh"
-    prun "srv56 -" "ip rou sh" < srv.list"
+    prun "srv56 -" "ip rou sh < srv.list"
 
     cat srv.list | prun - "netstat -na | grep LISTEN"
 
