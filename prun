@@ -40,7 +40,7 @@ tSSH_PARAM=${SSH_PARAM:-"<def>"}
 [ "${tSHOW_REPORT_FULLTEXT}" != "<def>" ] && SHOW_REPORT_FULLTEXT=${tSHOW_REPORT_FULLTEXT} || : ${SHOW_REPORT_FULLTEXT:="0"}
 [ "${tDEL_REPORT_DIR}" != "<def>" ] && DEL_REPORT_DIR=${tDEL_REPORT_DIR} || : ${DEL_REPORT_DIR:="1"}
 [ "${tSSH_USER}" != "<def>" ] && SSH_USER=${tSSH_USER} || : ${SSH_USER:="$(whoami)"}
-[ "${tSSH_KEY}" != "<def>" ] && SSH_KEY=${tSSH_KEY} || : ${SSH_KEY:="/home/${SSH_USER}/.ssh/id_rsa"}
+[ "${tSSH_KEY}" != "<def>" ] && SSH_KEY=${tSSH_KEY} || : ${SSH_KEY:="$(eval ls -d ~${SSH_USER}/.ssh/id_rsa)"}
 [ "${tSSH_PARAM}" != "<def>" ] && SSH_PARAM=${tSSH_PARAM} || : ${SSH_PARAM:="-na"}
 
 # private variables
