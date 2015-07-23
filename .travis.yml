@@ -4,6 +4,8 @@ before_script:
     - curl -L https://github.com/bmizerany/roundup/tarball/v0.0.5 | tar xvzf -
     - cd bmizerany-roundup-5c5dcb1 && ./configure && make && sudo make install
     - cd -
+    - ./prun help | grep Usage
+    - echo "" | DEBUG=1 ./prun "-" ":" 2>&1
 
 script:
     - ./test
