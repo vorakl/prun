@@ -4,8 +4,8 @@ before_script:
     - curl -L https://github.com/bmizerany/roundup/tarball/v0.0.5 | tar xvzf -
     - cd bmizerany-roundup-5c5dcb1 && ./configure && make && sudo make install
     - cd -
-    - pkill -9 prun || :
-    - ps axww | grep prun || :
+    - /bin/sh -c 'pkill -9 prun || :'
+    - /bin/sh -c 'ps axww | grep prun || :'
 
 script:
     - ./test
