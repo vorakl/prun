@@ -6,11 +6,6 @@ before_script:
     - cd -
     - pkill -9 prun || :
     - ps axww | grep prun || :
-:x
-
-
-
-
 
 script:
     - ./test
