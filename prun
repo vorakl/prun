@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# prun v.2.1 (c) vorakl, 2012-2014
+# prun (c) vorakl
 #
 # It executes in parallel mode commands on remote hosts
 # with watchdog controlling and making reports.
@@ -40,7 +40,7 @@ tSSH_PARAM=${SSH_PARAM:-"<def>"}
 [ "${tSHOW_REPORT_FULLTEXT}" != "<def>" ] && SHOW_REPORT_FULLTEXT=${tSHOW_REPORT_FULLTEXT} || : ${SHOW_REPORT_FULLTEXT:="0"}
 [ "${tDEL_REPORT_DIR}" != "<def>" ] && DEL_REPORT_DIR=${tDEL_REPORT_DIR} || : ${DEL_REPORT_DIR:="1"}
 [ "${tSSH_USER}" != "<def>" ] && SSH_USER=${tSSH_USER} || : ${SSH_USER:="$(whoami)"}
-[ "${tSSH_KEY}" != "<def>" ] && SSH_KEY=${tSSH_KEY} || : ${SSH_KEY:="$(eval ls -d ~${SSH_USER}/.ssh/id_rsa)"}
+[ "${tSSH_KEY}" != "<def>" ] && SSH_KEY=${tSSH_KEY} || : ${SSH_KEY:="$(eval echo ~${SSH_USER})/.ssh/id_rsa"}
 [ "${tSSH_PARAM}" != "<def>" ] && SSH_PARAM=${tSSH_PARAM} || : ${SSH_PARAM:="-na"}
 
 # private variables
@@ -201,7 +201,7 @@ main()
 
 	check_running
 	[ ! -d ${_TMP_DIR} ] && mkdir -p ${_TMP_DIR}
-        trap 'pkill -9 -P ${_MY_PID} > /dev/null; rm -f ${_PID_FILE};' 0 1 2 15
+        trap 'pkill -9 -P ${_MY_PID} > /dev/null; rm -f ${_PID_FILE};' 0 1 2 3 4 5 6 15
 
 	_TARGET_PARAM="$1"
         [ -z "${_TARGET_PARAM}" ] && { usage; exit 1; }
