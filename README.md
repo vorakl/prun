@@ -1,9 +1,5 @@
 # prun
 
-## Version
-
-v.2.1, 2012-2014
-
 ## Description
 
 It executes in parallel mode commands on remote hosts
