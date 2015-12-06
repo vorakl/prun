@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# prun (c) vorakl
+# prun (c) 2014, Oleksii Tsvietnov, me@vorakl.name
 #
 # It executes in parallel mode commands on remote hosts
 # with watchdog controlling and making reports.
