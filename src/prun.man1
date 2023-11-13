@@ -1,0 +1,91 @@
+.\" Copyright (c) 2023 vorakl
+.\" SPDX-License-Identifier: MIT
+.TH PRUN "1" "{{date}}" "{{version}}" ""
+.SH NAME
+prun \- run commands in parallel
+.SH SYNOPSIS
+\fBprun\fP ['\fICOMMAND\fP' ['\fICOMMAND\fP' [\fI...\fP]]]
+.br
+\fBprun\fP -f \fIFILE\fP
+.br
+\fBprun\fP -v
+.SH DESCRIPTION
+Parallel Runner, \fBprun\fP for short, manages parallel execution of
+an arbitrary number of full \fICOMMAND\fPs (with options). This means
+collecting their exit codes, and storing stdout and stderr separately.
+When all processes finished, \fBprun\fP prints out a final report that
+contains information of what was running and what is its exit code.
+.PP
+It accepts \fICOMMAND\fPs (with options) defined either as parameters or
+separate lines in a file or stdin
+.SH OPTIONS
+The program's behavior is controlled by environment variables only
+(see the section below).
+.IP "\fB\-f\fP \fIFILE\fP"
+specify a file with full \fICOMMAND\fPs on each separate line.
+The \fIFILE\fP may be either a path or '\-' for the standard input.
+.IP "\fB\-v\fP"
+print version
+.SH ENVIRONMENT VARIABLES
+.IP "PRUN_DEBUG"
+Turns on debug messages
+.br
+Default: 0 (means: off)
+.IP "PRUN_DEBUG_FMT"
+Sets the format of a debug message
+.br
+Default: "DEBUG: %s\\n"
+.IP "PRUN_DEBUG_START_FMT"
+Sets the format of the "start a new process" debug message
+.br
+Default: "DEBUG: process started: pid=%s command='%s'\\n"
+.IP "PRUN_DEBUG_WAIT_FMT"
+Sets the format of the "wait for a process" debug message
+.br
+Default: "DEBUG: wating for: pids=%s\\n"
+.IP "PRUN_DEBUG_STOP_FMT"
+Sets the format of the "process finished" debug message
+.br
+Default: "DEBUG: process finished: pid=%s exit_code=%s command='%s'\\n"
+.IP "PRUN_REPORT"
+Turns on the final report
+.br
+Default: 1 (means: on)
+.IP "PRUN_REPORT_SEP"
+Sets a separator for exit codes and commands
+.br
+Default: $'\\t' (means: TAB)
+.IP "PRUN_REPORT_FMT"
+Sets the format of the final report
+.br
+Default: "REPORT:\\nexit_codes=%s\\ncommands=%s\\n"
+.SH EXAMPLES
+.IP "\fB# Run two commands\fP"
+\fBprun\fP 'exit 2' 'exit 5'
+.IP "\fB# Run three commands\fP and change the separator with the format of a report"
+PRUN_REPORT_SEP=":" \\
+.br
+PRUN_REPORT_FMT="%s\\n%s\\n" \\
+.br
+\fBprun\fP 'exit 2' 'exit 5' 'exit 8'
+.IP "\fB# Run three commands given on the stdin and print debug messages\fP"
+printf "sleep 1; exit 1\\nsleep 3; exit 3\\nsleep 5; exit 5\\n" | \\
+.br
+PRUN_DEBUG=1 \fBprun\fP -f -
+.IP "\fB# Run three commands with debug output but suppressed wait messages\fR"
+PRUN_DEBUG_WAIT_FMT="\0" \\
+.br
+PRUN_DEBUG=1 \\
+.br
+\fBprun\fP 'sleep 1; exit 1' 'sleep 1; exit 3' 'sleep 1; exit 5'
+.IP "\fB# Turn off reports and run commands defined in a file\fP"
+PRUN_REPORT=0 \fBprun\fP -f input.file
+.SH CONTRIBUTION
+Contributions and Feedback are very welcome and anticipated!
+.br
+The source code: <https://github.com/vorakl/prun>
+.SH COPYRIGHT
+Copyright \(co 2023 vorakl, <vorakl@protonmail.com>
+.br
+The MIT License <https://mit-license.org/>.
+

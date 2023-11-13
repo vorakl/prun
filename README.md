@@ -1,2 +1,1 @@
-# prun
-Parallel runner
+# prun (Parallel Runner)
