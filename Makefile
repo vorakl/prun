@@ -1,5 +1,7 @@
-# Copyright (c) 2023 vorakl
+#
+# Copyright (c) 2023 prun contributors
 # SPDX-License-Identifier: MIT
+#
 
 SHELL := /bin/bash
 
@@ -27,12 +29,13 @@ usage:
 	@${ECHO_BIN} "  sudo make uninstall"
 	@${ECHO_BIN} ""
 	@${ECHO_BIN} "Description:"
-	@${ECHO_BIN} "  build           Build the tool"
-	@${ECHO_BIN} "  install         Install built files to the system (requiers root permissions)"
-	@${ECHO_BIN} "  uninstall       Uninstall the tool from the system (requiers root permissions)"
-	@${ECHO_BIN} "  clean           Remove built files"
-	@${ECHO_BIN} "  set_rel_tag     Set a Release tag to the current commit"
-	@${ECHO_BIN} "  check_bins      Check if all binaries exist"
+	@${ECHO_BIN} "  build                Build the tool"
+	@${ECHO_BIN} "  install              Install built files to the system (requiers root permissions)"
+	@${ECHO_BIN} "  uninstall            Uninstall the tool from the system (requiers root permissions)"
+	@${ECHO_BIN} "  clean                Remove built files"
+	@${ECHO_BIN} "  set_rel_tag          Set a Release tag to the current commit"
+	@${ECHO_BIN} "  create_contributors  Create a CONTRIBUTORS files"
+	@${ECHO_BIN} "  check_bins           Check if all binaries exist"
 	@${ECHO_BIN} ""
 
 .PHONY: check_bins
@@ -56,6 +59,10 @@ clean:
 .PHONY: set_rel_tag
 set_rel_tag:
 	@${MAKE_BIN} -C src set_rel_tag
+
+.PHONY: create_contributors
+create_contributors:
+	@${MAKE_BIN} -C src create_contributors
 
 .PHONY: install
 install:

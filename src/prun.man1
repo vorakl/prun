@@ -1,5 +1,7 @@
-.\" Copyright (c) 2023 vorakl
+.\"
+.\" Copyright (c) 2023 prun contributors
 .\" SPDX-License-Identifier: MIT
+.\"
 .TH PRUN "1" "{{date}}" "{{version}}" ""
 .SH NAME
 prun \- run commands in parallel
