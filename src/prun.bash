@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# prun (Parallel Runner)
-#
-# Copyright (c) 2023 vorakl
+# Copyright (c) 2023 prun contributors
 # SPDX-License-Identifier: MIT
+#
+# prun (Parallel Runner)
 #
 
 version="{{version}}"

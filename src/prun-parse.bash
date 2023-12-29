@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
+# Copyright (c) 2023 prun contributors
+# SPDX-License-Identifier: MIT
+#
 # An example of how to parse the prun's final report
 # Version: {{version}}
 #
 # Usage:
 #   prun 'sleep 2; exit 2' 'sleep 1' | prun-parse
-#
-# Copyright (c) 2023 vorakl
-# SPDX-License-Identifier: MIT
 #
 
 while IFS= read -r str
