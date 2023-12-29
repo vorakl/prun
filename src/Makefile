@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2023 prun contributors
-# SPDX-License-Identifier: MIT
+# Copyright (c) 2023 vorakl and the prun contributors
+# SPDX-License-Identifier: Apache-2.0
 #
 
 SHELL := /bin/bash
@@ -32,16 +32,14 @@ usage:
 	@${ECHO_BIN} "	make [target [...]] "
 	@${ECHO_BIN} ""
 	@${ECHO_BIN} "Examples:"
-	@${ECHO_BIN} "  make build"
-	@${ECHO_BIN} "  make clean"
-	@${ECHO_BIN} "  make setreltag"
+	@${ECHO_BIN} "  make check_bins clean build"
+	@${ECHO_BIN} "  make set_rel_tag"
 	@${ECHO_BIN} "  make create_contributors"
-	@${ECHO_BIN} "  make check_bins"
 	@${ECHO_BIN} ""
 	@${ECHO_BIN} "Description:"
 	@${ECHO_BIN} "  build                Build the project"
 	@${ECHO_BIN} "  clean                Remove built files"
-	@${ECHO_BIN} "  set_rel_tag          Set a Release tag to the current commit"
+	@${ECHO_BIN} "  set_rel_tag          Set a Release tag to the latest commit"
 	@${ECHO_BIN} "  create_contributors  Create a CONTRIBUTORS files"
 	@${ECHO_BIN} "  check_bins           Check if all binaries exist"
 	@${ECHO_BIN} ""
@@ -85,7 +83,7 @@ set_rel_tag:
 
 .PHONY: create_contributors
 create_contributors:
-	@${ECHO_BIN} "Creating a CONTRIBUTORS file..."
-	@${GIT_BIN} log --pretty=format:"%an" | sort -u > ${CURR_DIR}/../CONTRIBUTORS
+	@${ECHO_BIN} -n "Creating a CONTRIBUTORS file..."
+	@${GIT_BIN} log --pretty=format:"%an <%ae>" | sort -u > ${CURR_DIR}/../CONTRIBUTORS
 	@${ECHO_BIN} "Done"
 

@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2023 prun contributors
-# SPDX-License-Identifier: MIT
+# Copyright (c) 2023 vorakl and the prun contributors
+# SPDX-License-Identifier: Apache-2.0
 #
 
 SHELL := /bin/bash
@@ -69,9 +69,9 @@ install:
 	@${ECHO_BIN} -n "Installing built files to the system..."
 	@${MKDIR_BIN} -p ${DESTDIR}${PREFIX}/bin
 	@${MKDIR_BIN} -p ${DESTDIR}${MANPREFIX}/man1
-	@install -m 644 prun.1 ${DESTDIR}${MANPREFIX}/man1
-	@install prun ${DESTDIR}${PREFIX}/bin
-	@install prun-parse ${DESTDIR}${PREFIX}/bin
+	@${INSTALL_BIN} -m 644 prun.1 ${DESTDIR}${MANPREFIX}/man1
+	@${INSTALL_BIN} prun ${DESTDIR}${PREFIX}/bin
+	@${INSTALL_BIN} prun-parse ${DESTDIR}${PREFIX}/bin
 	@${ECHO_BIN} "Done"
 
 .PHONY: uninstall

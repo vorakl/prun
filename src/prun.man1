@@ -1,6 +1,6 @@
 .\"
-.\" Copyright (c) 2023 prun contributors
-.\" SPDX-License-Identifier: MIT
+.\" Copyright (c) 2023 vorakl and the prun contributors
+.\" SPDX-License-Identifier: Apache-2.0
 .\"
 .TH PRUN "1" "{{date}}" "{{version}}" ""
 .SH NAME
@@ -83,11 +83,13 @@ PRUN_DEBUG=1 \\
 .IP "\fB# Turn off reports and run commands defined in a file\fP"
 PRUN_REPORT=0 \fBprun\fP -f input.file
 .SH CONTRIBUTION
-Contributions and Feedback are very welcome and anticipated!
+Contributions and Feedback are very welcome and appreciated!
 .br
-The source code: <https://github.com/vorakl/prun>
-.SH COPYRIGHT
-Copyright \(co 2023 vorakl, <vorakl@protonmail.com>
+Read about the process and prerequisites in CONTRIBUTING.md
 .br
-The MIT License <https://mit-license.org/>.
+Submit a change on Github: https://github.com/vorakl/prun
+.SH COPYRIGHT AND LICENSE
+Copyright \(co 2023 vorakl and the prun contributors
+.br
+Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0.txt
 

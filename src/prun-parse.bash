@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2023 prun contributors
-# SPDX-License-Identifier: MIT
+# Copyright (c) 2023 vorakl and the prun contributors
+# SPDX-License-Identifier: Apache-2.0
 #
 # An example of how to parse the prun's final report
 # Version: {{version}}
