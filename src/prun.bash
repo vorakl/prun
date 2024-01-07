@@ -21,10 +21,12 @@ start()
     : ${PRUN_REPORT_FMT:="REPORT:\nexit_codes=%s\ncommands=%s\n"}
 
     declare -a exitcodes=()
-    declare -a pids=()
+    declare -a processes=()
 
     check_params "$@"
     case $? in
+        0)  commands=("$@")
+            ;;
         1)  IFS=$'\n' read -d '' -r -a commands
             ;;
         2)  IFS=$'\n' read -d '' -r -a commands < "$2"
@@ -107,8 +109,7 @@ check_params()
 {
     if [[ -z "$1" ]]
     then
-        usage >&2
-        exit 1
+        return 255
     elif [[ "$1" == "-f" ]]
     then
         [[ "$2" == "-" ]] && return 1 || :
